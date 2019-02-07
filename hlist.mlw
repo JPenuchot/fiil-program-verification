@@ -1,0 +1,88 @@
+(* construire un arbre binaire à partir de la liste
+   des hauteurs de ses feuilles:
+
+      [2 ; 3 ; 3 ; 1]     =>    |\
+                               /|
+                                |\
+*)
+
+module DepthList
+
+  predicate _TO_BE_COMPLETED
+
+  use int.Int
+  use list.List
+  use list.Length
+
+  type tree =
+    | Node tree tree
+    | Leaf
+
+  (* Fonction logique [hlist d t s] attache à la liste suffixe [s]
+     la liste des hauteurs des feuilles de l'arbre [t] incrémentées
+     d'un décalage [d]. *)
+  function hlist (d: int) (t: tree) (s: list int) : list int =
+    match t with
+    | Leaf       -> Cons d s
+    | Node t1 t2 -> hlist (d+1) t1 (hlist (d+1) t2 s)
+    end
+
+  (* Lemme "hlist_head" démontre que la liste renvoyée par "hlist"
+     n'est jamais vide et que son premier élément est supérieur ou
+     égal au premier argument de "hlist". *)
+  let rec lemma hlist_head (d: int) (t: tree)
+    ensures {
+      forall s: list int.
+        match hlist d t s with
+        | Cons x _ -> x >= d
+        | Nil      -> false
+        end
+    }
+    variant { t }
+  = match t with
+    | Node t1 _ -> hlist_head (d+1) t1
+    | Leaf -> ()
+    end
+
+  (* Lemme "hlist_same" démontre que pour un décalage [d] donné,
+     il existe un seul arbre [t] et une seule liste suffixe [s]
+     qui peuvent produire la liste [hlist d t s]. *)
+  let rec lemma hlist_same (d: int) (t1 t2: tree) (s1 s2: list int)
+    requires { hlist d t1 s1 = hlist d t2 s2 }
+    ensures  { t1 = t2 /\ s1 = s2 }
+    variant  { t1 }
+  = match t1, t2 with
+    | Leaf, Leaf -> ()
+    | Node t11 t12, Node t21 t22 ->
+        hlist_same (d+1) t11 t21 (hlist (d+1) t12 s1) (hlist (d+1) t22 s2);
+        hlist_same (d+1) t12 t22 s1 s2
+    | Leaf, (Node t _)
+    | (Node t _), Leaf ->
+        hlist_head (d+1) t
+    end
+
+  exception InvalidList
+
+  (* Implémenter et vérifier la fonction [tree_of_hlist d r]
+     qui renvoie une paire d'un arbre [t] et d'une liste suffixe [s]
+     tels que [hlist d t s = r] et qui lève l'exception InvalidList
+     si un tel arbre n'existe pas. *)
+
+  let rec tree_of_hlist (d: int) (r: list int) : (tree, list int)
+    returns { t, r -> _TO_BE_COMPLETED }
+    raises  { InvalidList -> _TO_BE_COMPLETED }
+  =
+    match r with 
+    | Nil -> raise InvalidList
+    | Cons h tl -> 
+        if d = h 
+        then Leaf, tl
+        else 
+            let tree_l, nlist  = tree_of_hlist (d + 1) r  in
+            let tree_r, nnlist = tree_of_hlist (d + 1) nlist in
+            (Node tree_l tree_r), nnlist
+    end
+    
+
+end
+

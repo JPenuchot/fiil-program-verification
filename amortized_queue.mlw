@@ -1,0 +1,77 @@
+(* file applicative à coût constant amorti *)
+
+module Queue
+
+  predicate _TO_BE_COMPLETED
+
+  use int.Int
+  use list.ListRich
+
+  type queue 'a = {
+    front : list 'a;
+    back  : list 'a;
+    delta : int;
+  } invariant { length front - length back = delta >= 0 }
+    by { front = Nil; back = Nil; delta = 0 }
+
+  (* La fonction logique "view" donne le modèle logique de
+     la structure de file. Ce modèle sert à spécifier le
+     comportement des opérations ci-dessous. *)
+  function view (q : queue 'a) : list 'a =
+    q.front ++ reverse q.back
+
+  (* "empty" renvoie une nouvelle file vide *)
+  let empty () ensures { view result = Nil } =
+    { front = Nil; back = Nil; delta = 0 }
+
+  (* "head" renvoie l'élément à la tête de la file. Cette
+     fonction doit être spécifiée en termes du modèle logique
+     de la structure, qui est fourni par la fonction "view". *)
+  let head (q: queue 'a) : 'a
+    requires { view q <> Nil }
+    ensures  { match view q with 
+                | Cons h tl -> (result = h)
+                | Nil -> false
+               end }
+  =
+    match q.front with
+      | Nil      -> absurd
+      | Cons h _ -> h
+    end
+
+  (* "update" met à jour la file après les opérations "tail"
+     et "enqueue" ci-dessous, en préservant l'invariant du type.
+     Elle prend en argument les nouvelles valeurs de "front" et
+     de "back", ainsi que l'ancienne valeur de "delta". *)
+  let update (f: list 'a) (b: list 'a) (old_d: int) : queue 'a
+    requires { length f - length b + 1 = old_d >= 0 }
+    ensures  { view result = f ++ reverse b }
+  =
+    { front = f ++ reverse b; back = Nil; delta = length f + length b }
+
+
+  (* "tail" renvoie le reste de la file. Cette fonction doit
+     être spécifiée en termes du modèle logique de la structure,
+     qui est fourni par la fonction "view". *)
+  let tail (q: queue 'a) : queue 'a
+    requires { view q <> Nil }
+    ensures { match view q with
+              | Cons h tl -> view result = tl
+              | _ -> false
+              end}
+  =
+    match q.front with
+      | Nil      -> absurd
+      | Cons _ t -> update t q.back q.delta
+    end
+
+  (* "enqueue" ajoute un élément à la fin de la file. Cette fonction
+     doit être spécifiée en termes du modèle logique de la structure,
+     qui est fourni par la fonction "view". *)
+  let enqueue (q: queue 'a) (x: 'a) : queue 'a
+    requires { view q <> Nil }
+    ensures  { view result = view q ++ Cons x Nil }
+  =
+    update (q.front) (Cons x q.back) q.delta
+
+end
