@@ -1,0 +1,14 @@
+## Binaries & Executable
+
+*.o
+prog
+*.asm
+
+## Dependencies
+
+*.d
+
+## Compile commands
+
+compile_commands.json
+*.o.json
