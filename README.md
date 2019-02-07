@@ -10,5 +10,5 @@ Formal proof exercises for my Master's Degree's formal verification teaching uni
 
 - Why3 :
 	- amortized_queue.mlw (Fini)
-	- gbuf.mlw (A Fini)
+	- gbuf.mlw (A Finir)
 	- hlist.mlw (A Faire)
