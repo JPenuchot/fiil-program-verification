@@ -1,3 +1,4 @@
+.SUFFIXES:
 .SUFFIXES: .mlw .wh3
 
 SRC = $(shell find . -name "*.mlw")
