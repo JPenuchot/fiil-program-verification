@@ -12,3 +12,7 @@ prog
 
 compile_commands.json
 *.o.json
+
+## Proof results
+
+*.fc
