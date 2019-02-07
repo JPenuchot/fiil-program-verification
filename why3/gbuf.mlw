@@ -1,0 +1,162 @@
+predicate aCOMPLETER
+
+(* On souhaite représenter une chaîne de caractères C de taille M
+   avec un curseur à la position L (0 <= L <= M)
+
+      c0 c1 c2 ... | cL ... c(M-1)
+
+  en utilisant un tableau A de taille N (N >= M) avec une interstice
+
+   indice :    0  1  2  ...  L-1  ............  R   R+1   ...  N-1
+   valeur : [ c0 c1 c2 ... c(L-1) ............ cL c(L+1) ... c(M-1) ]
+
+  Le contenu du tableau entre les indices L et R-1 est sans importance.
+*)
+
+use int.Int
+use array.Array
+
+type char
+
+type buffer = {
+        mutable a : array char;   (* tableau *)
+        mutable l : int;          (* position du curseur *)
+        mutable r : int;          (* fin de l'interstice *)
+  ghost mutable c : int -> char;  (* chaîne de caractères *)
+  ghost mutable m : int;          (* taille de la chaîne *)
+}
+invariant { 0 <= l <= r <= a.length }
+invariant { m = a.length - (r - l) }
+invariant { forall i. 0 <= i < l -> c i = a[i] }
+invariant { forall i. l <= i < m -> c i = a[i+r-l] }
+       by { a = Array.make 0 (any char);
+            l = 0;
+            r = 0;
+            c = any (int -> char);
+            m = 0;
+}
+
+predicate same_string (b1 b2: buffer) =
+  b1.m = b2.m /\ 
+  forall i. 0 <= i < b1.m -> b1.c i = b2.c i
+
+(* Pour déplacer le curseur à gauche, on copie le caractère c(L-1)
+   dans la case R-1, et on décrémente L et R.
+
+   Donner la bonne précondition et la postcondition en terme
+   du modèle logique de la structure : champs c, m, et l. *)
+
+let left (b: buffer) : unit
+  requires { b.l > 0 }
+  ensures  { old b.l-1 = b.l }
+  ensures  { old b.m = b.m }
+  ensures  { old b.c = b.c }
+= b.l <- b.l - 1;
+  b.r <- b.r - 1;
+  b.a[b.r] <- b.a[b.l]
+
+(* Pour déplacer le curseur à droite, on copie le caractère cL
+   dans la case L, et on met à jour les indices L et R.
+
+   Implémenter la procédure.
+   Donner la bonne précondition et la postcondition en terme
+   du modèle logique de la structure : champs c, m, et l. *)
+
+let right (b: buffer) : unit
+  requires { b.l < b.m }
+  ensures  { old b.l+1 = b.l }
+  ensures  { old b.m = b.m }
+  ensures  { old b.c = b.c }
+= b.a[b.l] <- b.a[b.r];
+  b.r <- b.r + 1;
+  b.l <- b.l + 1
+  
+  
+
+(* Pour effacer le caractère devant le curseur, on décrémente L
+   et on met à jour le modèle (champs c et m).
+
+   Compléter le code de la procédure.
+   Donner la bonne précondition et la postcondition en terme
+   du modèle logique de la structure : champs c, m, et l. *)
+
+let backspace (b: buffer) : unit
+  requires { b.l > 0 }
+  ensures  { old b.l-1 = b.l }
+  ensures  { old b.m-1 = b.m }
+  ensures  { old b.r = b.r  }
+  ensures  { forall i. 0 <= i <  b.l -> b.c i = old b.c i}
+  ensures  { forall i. b.l <= i < b.m -> b.c i = old b.c (i+1) }
+= let old_c = b.c in
+  let old_l = b.l in
+  b.c <- (fun (i:int) ->
+      if i < old_l - 1
+      then old_c i
+      else old_c (i+1));
+      
+  b.l <- b.l - 1;
+  b.m <- b.m - 1
+  
+  
+
+(* Pour effacer le caractère après le curseur, on incrémente R
+   et on met à jour le modèle (champs c et m).
+
+   Compléter le code de la procédure.
+   Donner la bonne précondition et la postcondition en terme
+   du modèle logique de la structure : champs c, m, et l. *)
+
+let delete (b: buffer) : unit
+  requires { b.l < b.m }
+  ensures  { old b.l = b.l }
+  ensures  { old b.r + 1 = b.r  }
+  ensures  { old b.m-1 = b.m }
+  ensures  { forall i. 0 <= i <  b.l -> b.c i = old b.c i}
+  ensures  { forall i. b.l <= i < b.m -> b.c i = old b.c (i+1) }
+= let old_c = b.c in
+  let old_l = b.l in
+  b.c <- (fun (i:int) ->
+      if i < old_l
+      then old_c i
+      else old_c (i+1));
+      
+  b.r <- b.r + 1;
+  b.m <- b.m - 1
+
+
+
+
+
+
+
+
+(* Agrandir le tableau b.a en ajoutant d nouvelles cases.
+
+   Compléter le code de la procédure.
+   Donner la bonne précondition et la postcondition en terme
+   du modèle logique de la structure : champs c, m, et l. *)
+
+val constant dummy_char : char
+
+let grow (b: buffer) (d: int) : unit
+  requires { aCOMPLETER }
+  ensures  { aCOMPLETER }
+=
+  let p = Array.make (b.a.length + d) dummy_char in
+  absurd; (* copier les caractères de b.a dans p *)
+  b.a <- p;
+  absurd (* mettre à jour les autres champs de b *)
+
+(* Pour insérer un nouveau caractère à la position du curseur
+   quand l'interstice est non-vide, on place le caractère à
+   l'indice L et on augmente L. Si l'interstice est vide,
+   il faut d'abord agrandir le tableau.
+
+   Donner la postcondition en terme
+   du modèle logique de la structure : champs c, m, et l. *)
+
+let insert (b: buffer) (x: char)
+  ensures { aCOMPLETER }
+= if b.l = b.r then grow b 16;
+  b.a[b.l] <- x;
+  b.l <- b.l + 1
