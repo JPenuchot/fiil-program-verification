@@ -1,0 +1,138 @@
+theory DepthList
+  (* use why3.BuiltIn.BuiltIn *)
+  
+  (* use why3.Bool.Bool *)
+  
+  (* use why3.Unit.Unit *)
+  
+  predicate _TO_BE_COMPLETED
+  
+  (* use int.Int *)
+  
+  (* use list.List *)
+  
+  (* use list.Length *)
+  
+  type tree =
+    | Node tree tree
+    | Leaf
+  
+  function hlist (d:int) (t:tree) (s:list int) : list int =
+    match t with
+    | Leaf -> Cons d s
+    | Node t1 t2 -> hlist (d + 1) t1 (hlist (d + 1) t2 s)
+    end
+  
+  goal VC hlist_head :
+    forall d:int, t:tree.
+     match t with
+     | Node t1 _ ->
+         match t with
+         | Node f f1 -> f = t1 \/ f1 = t1
+         | Leaf -> false
+         end
+     | Leaf -> true
+     end /\
+     (match t with
+      | Node t1 _ ->
+          let o = d + 1 in
+          forall s:list int.
+           match hlist o t1 s with
+           | Cons x _ -> x >= o
+           | Nil -> false
+           end
+      | Leaf -> true
+      end ->
+      (forall s:list int.
+        match hlist d t s with
+        | Cons x _ -> x >= d
+        | Nil -> false
+        end))
+  
+  axiom hlist_head :
+    forall d:int, t:tree.
+     forall s:list int.
+      match hlist d t s with
+      | Cons x _ -> x >= d
+      | Nil -> false
+      end
+  
+  (* use why3.Tuple2.Tuple2 *)
+  
+  goal VC hlist_same :
+    forall d:int, t1:tree, t2:tree, s1:list int, s2:list int.
+     hlist d t1 s1 = hlist d t2 s2 ->
+     match t2 with
+     | Leaf -> match t1 with
+         | Leaf -> true
+         | Node x x1 -> true
+         end
+     | Node x x1 ->
+         match t1 with
+         | Node x2 x3 ->
+             let o = hlist (d + 1) x1 s2 in
+             let o1 = hlist (d + 1) x3 s1 in
+             let o2 = d + 1 in
+             (match t1 with
+              | Node f f1 -> f = x2 \/ f1 = x2
+              | Leaf -> false
+              end /\ hlist o2 x2 o1 = hlist o2 x o) /\
+             (x2 = x /\ o1 = o ->
+              (let o3 = d + 1 in
+               match t1 with
+               | Node f f1 -> f = x3 \/ f1 = x3
+               | Leaf -> false
+               end /\ hlist o3 x3 s1 = hlist o3 x1 s2))
+         | Leaf -> true
+         end
+     end /\
+     (match t2 with
+      | Leaf ->
+          match t1 with
+          | Leaf -> true
+          | Node x x1 ->
+              let o = d + 1 in
+              forall s:list int.
+               match hlist o x s with
+               | Cons x2 _ -> x2 >= o
+               | Nil -> false
+               end
+          end
+      | Node x x1 ->
+          match t1 with
+          | Node x2 x3 ->
+              (x2 = x /\ hlist (d + 1) x3 s1 = hlist (d + 1) x1 s2) /\
+              x3 = x1 /\ s1 = s2
+          | Leaf ->
+              let o = d + 1 in
+              forall s:list int.
+               match hlist o x s with
+               | Cons x2 _ -> x2 >= o
+               | Nil -> false
+               end
+          end
+      end -> t1 = t2 /\ s1 = s2)
+  
+  axiom hlist_same :
+    forall d:int, t1:tree, t2:tree, s1:list int, s2:list int.
+     hlist d t1 s1 = hlist d t2 s2 -> t1 = t2 /\ s1 = s2
+  
+  goal VC tree_of_hlist :
+    forall d:int, r:list int.
+     match r with
+     | Nil -> _TO_BE_COMPLETED
+     | Cons h tl ->
+         if d = h then _TO_BE_COMPLETED
+         else false /\
+              (forall tree_l:tree.
+                _TO_BE_COMPLETED ->
+                false /\
+                (forall o:tree, o1:list int.
+                  _TO_BE_COMPLETED ->
+                  (forall t:tree, r1:list int.
+                    t = Node tree_l o /\ r1 = o1 -> _TO_BE_COMPLETED)) /\
+                (_TO_BE_COMPLETED -> _TO_BE_COMPLETED)) /\
+              (_TO_BE_COMPLETED -> _TO_BE_COMPLETED)
+     end
+end
+

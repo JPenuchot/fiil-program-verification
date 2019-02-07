@@ -72,17 +72,16 @@ module DepthList
     returns { t, r -> _TO_BE_COMPLETED }
     raises  { InvalidList -> _TO_BE_COMPLETED }
   =
-    match r with 
+    match r with
     | Nil -> raise InvalidList
-    | Cons h tl -> 
-        if d = h 
+    | Cons h tl ->
+        if d = h
         then Leaf, tl
-        else 
+        else
             let tree_l, nlist  = tree_of_hlist (d + 1) r  in
             let tree_r, nnlist = tree_of_hlist (d + 1) nlist in
             (Node tree_l tree_r), nnlist
     end
-    
+
 
 end
-
