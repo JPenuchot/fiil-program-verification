@@ -4,7 +4,7 @@ Formal proof exercises for my Master's Degree's formal verification teaching uni
 - Frama-C :
 	- max_tab.c (Fini)
 	- symmetry.c (Fini)
-	- sort.c (A Faire)
+	- sort.c (A finir)
 
 - Why3 :
 	- amortized_queue.mlw (Fini)
