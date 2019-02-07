@@ -1,0 +1,14 @@
+[kernel] Parsing src/max_tab.c (with preprocessing)
+[wp] Running WP plugin...
+[rte] annotating function max_idx
+[rte] annotating function max_seq
+[wp] src/max_tab.c:53: Warning: 
+  Missing assigns clause (assigns 'everything' instead)
+[wp] 4 goals scheduled
+[wp] [Alt-Ergo] Goal typed_max_seq_assert_rte_mem_access : Unknown (Qed:0.66ms) (108ms)
+[wp] [Alt-Ergo] Goal typed_max_idx_assert_rte_signed_overflow : Valid
+[wp] [Alt-Ergo] Goal typed_max_idx_assert_rte_mem_access_2 : Unknown (Qed:0.64ms) (104ms)
+[wp] [Alt-Ergo] Goal typed_max_idx_assert_rte_mem_access : Unknown (Qed:1ms) (102ms)
+[wp] Proved goals:    1 / 4
+  Qed:             0  (0.86ms)
+  Alt-Ergo:        1  (14ms) (34) (unknown: 3)

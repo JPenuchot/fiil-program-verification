@@ -1,7 +1,7 @@
 .POSIX:
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .o .d
+.SUFFIXES: .c .cpp .o .d .fc
 
 include config.mk
 
@@ -14,21 +14,29 @@ CXXOBJ = $(CXXSRC:.cpp=.o)
 CCOBJ  = $(CCSRC:.c=.o)
 OBJ    = $(CXXOBJ) $(CCOBJ)
 
+# Proof results
+FCSRC  = $(CCSRC:.c=.fc)
+
 # Dependency files
 DEPS   = $(OBJ:.o=.d)
 
-all: $(NAME)
+all: prove $(NAME)
 
 # Compilation
 .cpp.o:
 	$(CXX) $(COMMON_FLAGS) $(CXXFLAGS) -MMD -c -o $@ $<
 .c.o:
-	frama-c -wp -wp-rte $<
 	$(CC) $(COMMON_FLAGS) $(CCFLAGS) -MMD -c -o $@ $<
+
+# Proving
+.c.fc:
+	frama-c -wp -wp-rte $< > $@
 
 # Linking
 $(NAME): $(OBJ)
 	$(CXX) -o $@ $(OBJ) $(LDFLAGS)
+
+prove: $(FCSRC)
 
 # Dependencies
 -include $(DEPS)
@@ -38,7 +46,7 @@ debug: CCFLAGS  += -DDEBUG -g
 debug: $(NAME)
 
 clean:
-	rm -f $(NAME) $(NAME).asm $(OBJ) $(DEPS)
+	rm -f $(NAME) $(NAME).asm $(OBJ) $(DEPS) $(FCSRC)
 
 run: $(NAME)
 	./$(NAME)
