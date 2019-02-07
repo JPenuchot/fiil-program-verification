@@ -11,7 +11,7 @@
 
 /* ---------------------------------------------------------------------------
    Petits rappels de mathématiques élémentaires à toutes fins utiles :
- 
+
    - Une matrice carrée de taille N (N, entier naturel) est une matrice
    possédant N lignes et N colonnes.
 
@@ -31,11 +31,8 @@
    Question 2 : prouver cette fonction, y compris sa terminaison et l'absence
    d'erreurs à l'exécution.
    ------------------------------------------------------------------------- */
-<<<<<<< HEAD
 
-_Bool is_symmetric(int **matrix, int len) {
-  for (int i = 0; i < len; i++)
-=======
+
 /*@ requires \valid(matrix[0..len-1]+(0..len-1));
   @ requires \valid(matrix+(0..len-1));
   @ requires len >= 0;
@@ -61,7 +58,6 @@ _Bool is_symmetric(int **matrix, int len) {
     @loop assigns j;
     @loop variant i - j;
     @ */
->>>>>>> ae4f5349783328994d2a2fec3607f2f798e361f4
     for (int j = 0; j < i; j++)
       if (matrix[i][j] != matrix[j][i])
         return false;

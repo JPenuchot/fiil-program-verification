@@ -21,19 +21,13 @@
    [max_seq], définie juste après. Nous ne donnons ici que sa déclaration. Sa
    définition est fournie en fin de fichier.
    ------------------------------------------------------------------------- */
-<<<<<<< HEAD
 
-int max_idx(unsigned int *t, int len);
 
-/* ---------------------------------------------------------------------------
-   La fonction [max_seq] retourne la valeur maximale contenue dans
-=======
 #include <limits.h>
 int max_idx(unsigned int *t, int len);
 
 /* ---------------------------------------------------------------------------
-   La fonction [max_seq] retourne la valeur maximale contenue dans 
->>>>>>> ae4f5349783328994d2a2fec3607f2f798e361f4
+   La fonction [max_seq] retourne la valeur maximale contenue dans
    le tableau [t] de longueur [len]. Elle retourne -1 si le tableau est vide.
 
    Question 1 : spécifier cette fonction en utilisant des comportements ACSL.
@@ -46,9 +40,7 @@ int max_idx(unsigned int *t, int len);
    Indice : il est autorisé d'inclure un fichier de la bibliothèque standard du
    C (déjà utilisé en TD dans des cas similaires).
    ------------------------------------------------------------------------- */
-<<<<<<< HEAD
 
-=======
 /*@ requires \valid(t+(0..len-1));
   @ requires len >= 0;
   @ requires \forall integer n; 0 <= n < len ==> t[n] <= INT_MAX;
@@ -64,7 +56,6 @@ int max_idx(unsigned int *t, int len);
   @ complete behaviors;
   @ disjoint behaviors;
   @ */
->>>>>>> ae4f5349783328994d2a2fec3607f2f798e361f4
 int max_seq(unsigned int *t, int len) {
   if (len <= 0) return -1;
   return t[max_idx(t, len)];
@@ -73,11 +64,7 @@ int max_seq(unsigned int *t, int len) {
 /* ---------------------------------------------------------------------------
    Ci-après, la définition de la fonction [max_idx].
    ------------------------------------------------------------------------- */
-<<<<<<< HEAD
 
-int max_idx(unsigned int *t, int len) {
-  int max = 0;
-=======
 /*@ requires \valid(t+(0..len-1));
   @ requires len > 0;
   @ assigns \nothing;
@@ -93,7 +80,6 @@ int max_idx(unsigned int *t, int len) {
     @loop assigns i, max;
     @loop variant len - i;
     @ */
->>>>>>> ae4f5349783328994d2a2fec3607f2f798e361f4
   for(int i = 1; i < len; i++)
     if (t[max] < t[i])
       max = i;

@@ -13,9 +13,9 @@ CC  = clang
 # Compile flags
 COMMON_FLAGS += -O3 -march=native
 COMMON_FLAGS += -DVERSION=\"$(VERSION)\"
-COMMON_FLAGS += -Wall -Wextra -Wnull-dereference -Wold-style-cast\
-                -Wdouble-promotion -Wshadow\
-                #-Werror
+#COMMON_FLAGS += -Wall -Wextra -Wnull-dereference -Wold-style-cast\
+#                -Wdouble-promotion -Wshadow\
+#                -Werror
 
 # Link flags
 LDFLAGS  += -fPIC -O3

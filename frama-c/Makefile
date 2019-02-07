@@ -34,7 +34,7 @@ all: prove $(NAME)
 
 # Linking
 $(NAME): $(OBJ)
-	$(CXX) -o $@ $(OBJ) $(LDFLAGS)
+	#$(CXX) -o $@ $(OBJ) $(LDFLAGS)
 
 prove: $(FCSRC)
 
