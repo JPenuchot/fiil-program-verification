@@ -4,7 +4,7 @@
 SRC = $(shell find . -name "*.mlw")
 OUT = $(SRC:.mlw=.wh3)
 
-all: $(OUT)
+prove: $(OUT)
 
 .mlw.wh3:
 	why3 prove $< > $@
