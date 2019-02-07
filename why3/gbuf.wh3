@@ -1,0 +1,259 @@
+theory Top
+  (* use why3.BuiltIn.BuiltIn *)
+  
+  (* use why3.Bool.Bool *)
+  
+  (* use why3.Unit.Unit *)
+  
+  predicate aCOMPLETER
+  
+  (* use int.Int *)
+  
+  (* use array.Array *)
+  
+  type char
+  
+  goal VC buffer :
+    forall c:int -> char.
+     forall o:char.
+      0 >= 0 /\
+      (let a = make 0 o in
+       (forall i:int. 0 <= i /\ i < 0 -> a[i] = o) /\ length a = 0 ->
+       (0 <= 0 /\ 0 <= 0 /\ 0 <= length a) &&
+       0 = (length a - (0 - 0)) &&
+       (forall i:int. 0 <= i /\ i < 0 -> (c @ i) = a[i]) &&
+       (forall i:int. 0 <= i /\ i < 0 -> (c @ i) = a[(i + 0) - 0]))
+  
+  type buffer
+  
+  function a buffer : array char
+  
+  function l buffer : int
+  
+  function r buffer : int
+  
+  function c buffer : int -> char
+  
+  function m buffer : int
+  
+  axiom buffer'invariant :
+    forall self:buffer [m self| c self| r self| l self| a self].
+     (0 <= l self /\ l self <= r self /\ r self <= length (a self)) /\
+     m self = (length (a self) - (r self - l self)) /\
+     (forall i:int. 0 <= i /\ i < l self -> (c self @ i) = (a self)[i]) /\
+     (forall i:int.
+       l self <= i /\ i < m self ->
+       (c self @ i) = (a self)[(i + r self) - l self])
+  
+  predicate same_string (b1:buffer) (b2:buffer) =
+    m b1 = m b2 /\
+    (forall i:int. 0 <= i /\ i < m b1 -> (c b1 @ i) = (c b2 @ i))
+  
+  goal VC left :
+    forall b:buffer, b_m:int, b_c:int -> char, b_r:int, b_l:int, b_a:array
+     char.
+     (b_m = m b /\ b_c = c b /\ b_r = r b /\ b_l = l b /\ b_a = a b) /\
+     l b > 0 ->
+     (forall b_m1:int, b_c1:int -> char, b_r1:int, b_l1:int, b_a1:array char.
+       b_a1 = a b /\
+       b_l1 = (l b - 1) /\ b_r1 = r b /\ b_c1 = c b /\ b_m1 = m b ->
+       (forall b_m2:int, b_c2:int -> char, b_r2:int, b_l2:int, b_a2:array
+         char.
+         b_a2 = b_a1 /\
+         b_l2 = b_l1 /\ b_r2 = (b_r1 - 1) /\ b_c2 = b_c1 /\ b_m2 = b_m1 ->
+         (0 <= b_l2 /\ b_l2 < length b_a2) /\
+         (let o = b_a2[b_l2] in
+          (0 <= b_r2 /\ b_r2 < length b_a2) /\
+          (forall b1:buffer, b_m3:int, b_c3:int -> char, b_r3:int, b_l3:int,
+            b_a3:array char.
+            length b_a3 = length b_a2 ->
+            length b_a3 = length b_a2 /\
+            b_l3 = b_l2 /\ b_r3 = b_r2 /\ b_c3 = b_c2 /\ b_m3 = b_m2 ->
+            elts b_a3 = set (elts b_a2) b_r2 o /\ b_a3 = b_a2[b_r2 <- o] ->
+            ((0 <= b_l3 /\ b_l3 <= b_r3 /\ b_r3 <= length b_a3) &&
+             b_m3 = (length b_a3 - (b_r3 - b_l3)) &&
+             (forall i:int. 0 <= i /\ i < b_l3 -> (b_c3 @ i) = b_a3[i]) &&
+             (forall i:int.
+               b_l3 <= i /\ i < b_m3 -> (b_c3 @ i) = b_a3[(i + b_r3) - b_l3])) /\
+            (b_m3 = m b1 /\
+             b_c3 = c b1 /\ b_r3 = r b1 /\ b_l3 = l b1 /\ b_a3 = a b1 ->
+             (l b - 1) = l b1 && m b = m b1 && c b = c b1)))))
+  
+  goal VC right :
+    forall b:buffer, b_m:int, b_c:int -> char, b_r:int, b_l:int, b_a:array
+     char.
+     (b_m = m b /\ b_c = c b /\ b_r = r b /\ b_l = l b /\ b_a = a b) /\
+     l b < m b ->
+     (let o = r b in
+      let o1 = a b in
+      (0 <= o /\ o < length o1) /\
+      (let o2 = o1[o] in
+       let o3 = l b in
+       let o4 = a b in
+       (0 <= o3 /\ o3 < length o4) /\
+       (forall b_m1:int, b_c1:int -> char, b_r1:int, b_l1:int, b_a1:array
+         char.
+         length b_a1 = length o4 ->
+         length b_a1 = length (a b) /\
+         b_l1 = l b /\ b_r1 = r b /\ b_c1 = c b /\ b_m1 = m b ->
+         elts b_a1 = set (elts o4) o3 o2 /\ b_a1 = o4[o3 <- o2] ->
+         (forall b_m2:int, b_c2:int -> char, b_r2:int, b_l2:int, b_a2:array
+           char.
+           b_a2 = b_a1 /\
+           b_l2 = b_l1 /\ b_r2 = (b_r1 + 1) /\ b_c2 = b_c1 /\ b_m2 = b_m1 ->
+           (forall b1:buffer, b_m3:int, b_c3:int -> char, b_r3:int, b_l3:int,
+             b_a3:array char.
+             b_a3 = b_a2 /\
+             b_l3 = (b_l2 + 1) /\ b_r3 = b_r2 /\ b_c3 = b_c2 /\ b_m3 = b_m2 ->
+             ((0 <= b_l3 /\ b_l3 <= b_r3 /\ b_r3 <= length b_a3) &&
+              b_m3 = (length b_a3 - (b_r3 - b_l3)) &&
+              (forall i:int. 0 <= i /\ i < b_l3 -> (b_c3 @ i) = b_a3[i]) &&
+              (forall i:int.
+                b_l3 <= i /\ i < b_m3 -> (b_c3 @ i) = b_a3[(i + b_r3) - b_l3])) /\
+             (b_m3 = m b1 /\
+              b_c3 = c b1 /\ b_r3 = r b1 /\ b_l3 = l b1 /\ b_a3 = a b1 ->
+              (l b + 1) = l b1 && m b = m b1 && c b = c b1))))))
+  
+  goal VC backspace :
+    forall b:buffer, b_m:int, b_c:int -> char, b_r:int, b_l:int, b_a:array
+     char.
+     (b_m = m b /\ b_c = c b /\ b_r = r b /\ b_l = l b /\ b_a = a b) /\
+     l b > 0 ->
+     (let old_c = c b in
+      forall b_m1:int, b_c1:int -> char, b_r1:int, b_l1:int, b_a1:array char.
+       b_a1 = a b /\
+       b_l1 = l b /\
+       b_r1 = r b /\
+       b_c1
+       = (fun (i:int) -> if i < (l b - 1) then old_c @ i else old_c @ (i + 1)) /\
+       b_m1 = m b ->
+       (forall b_m2:int, b_c2:int -> char, b_r2:int, b_l2:int, b_a2:array
+         char.
+         b_a2 = b_a1 /\
+         b_l2 = (b_l1 - 1) /\ b_r2 = b_r1 /\ b_c2 = b_c1 /\ b_m2 = b_m1 ->
+         (forall b1:buffer, b_m3:int, b_c3:int -> char, b_r3:int, b_l3:int,
+           b_a3:array char.
+           b_a3 = b_a2 /\
+           b_l3 = b_l2 /\ b_r3 = b_r2 /\ b_c3 = b_c2 /\ b_m3 = (b_m2 - 1) ->
+           ((0 <= b_l3 /\ b_l3 <= b_r3 /\ b_r3 <= length b_a3) &&
+            b_m3 = (length b_a3 - (b_r3 - b_l3)) &&
+            (forall i:int. 0 <= i /\ i < b_l3 -> (b_c3 @ i) = b_a3[i]) &&
+            (forall i:int.
+              b_l3 <= i /\ i < b_m3 -> (b_c3 @ i) = b_a3[(i + b_r3) - b_l3])) /\
+           (b_m3 = m b1 /\
+            b_c3 = c b1 /\ b_r3 = r b1 /\ b_l3 = l b1 /\ b_a3 = a b1 ->
+            (l b - 1) = l b1 &&
+            (m b - 1) = m b1 &&
+            r b = r b1 &&
+            (forall i:int. 0 <= i /\ i < l b1 -> (c b1 @ i) = (c b @ i)) &&
+            (forall i:int.
+              l b1 <= i /\ i < m b1 -> (c b1 @ i) = (c b @ (i + 1)))))))
+  
+  goal VC delete :
+    forall b:buffer, b_m:int, b_c:int -> char, b_r:int, b_l:int, b_a:array
+     char.
+     (b_m = m b /\ b_c = c b /\ b_r = r b /\ b_l = l b /\ b_a = a b) /\
+     l b < m b ->
+     (let old_c = c b in
+      forall b_m1:int, b_c1:int -> char, b_r1:int, b_l1:int, b_a1:array char.
+       b_a1 = a b /\
+       b_l1 = l b /\
+       b_r1 = r b /\
+       b_c1 = (fun (i:int) -> if i < l b then old_c @ i else old_c @ (i + 1)) /\
+       b_m1 = m b ->
+       (forall b_m2:int, b_c2:int -> char, b_r2:int, b_l2:int, b_a2:array
+         char.
+         b_a2 = b_a1 /\
+         b_l2 = b_l1 /\ b_r2 = (b_r1 + 1) /\ b_c2 = b_c1 /\ b_m2 = b_m1 ->
+         (forall b1:buffer, b_m3:int, b_c3:int -> char, b_r3:int, b_l3:int,
+           b_a3:array char.
+           b_a3 = b_a2 /\
+           b_l3 = b_l2 /\ b_r3 = b_r2 /\ b_c3 = b_c2 /\ b_m3 = (b_m2 - 1) ->
+           ((0 <= b_l3 /\ b_l3 <= b_r3 /\ b_r3 <= length b_a3) &&
+            b_m3 = (length b_a3 - (b_r3 - b_l3)) &&
+            (forall i:int. 0 <= i /\ i < b_l3 -> (b_c3 @ i) = b_a3[i]) &&
+            (forall i:int.
+              b_l3 <= i /\ i < b_m3 -> (b_c3 @ i) = b_a3[(i + b_r3) - b_l3])) /\
+           (b_m3 = m b1 /\
+            b_c3 = c b1 /\ b_r3 = r b1 /\ b_l3 = l b1 /\ b_a3 = a b1 ->
+            l b = l b1 &&
+            (r b + 1) = r b1 &&
+            (m b - 1) = m b1 &&
+            (forall i:int. 0 <= i /\ i < l b1 -> (c b1 @ i) = (c b @ i)) &&
+            (forall i:int.
+              l b1 <= i /\ i < m b1 -> (c b1 @ i) = (c b @ (i + 1)))))))
+  
+  constant dummy_char : char
+  
+  goal VC grow :
+    forall b:buffer, b_m:int, b_c:int -> char, b_r:int, b_l:int, b_a:array
+     char, d:int.
+     (b_m = m b /\ b_c = c b /\ b_r = r b /\ b_l = l b /\ b_a = a b) /\
+     aCOMPLETER ->
+     (let o = dummy_char in
+      let o1 = length (a b) + d in
+      o1 >= 0 /\
+      (let p = make o1 o in
+       (forall i:int. 0 <= i /\ i < o1 -> p[i] = o) /\ length p = o1 -> false))
+  
+  goal VC insert :
+    forall b:buffer, b_m:int, b_c:int -> char, b_r:int, b_l:int, b_a:array
+     char, x:char.
+     b_m = m b /\ b_c = c b /\ b_r = r b /\ b_l = l b /\ b_a = a b ->
+     (if l b = r b
+      then true /\
+           (true ->
+            aCOMPLETER /\
+            (forall b1:buffer, b_m1:int, b_c1:int -> char, b_r1:int, b_l1:
+              int, b_a1:array char.
+              b_l1 = l b /\ b_r1 = r b /\ b_c1 = c b /\ b_m1 = m b ->
+              b_m1 = m b1 /\
+              b_c1 = c b1 /\ b_r1 = r b1 /\ b_l1 = l b1 /\ b_a1 = a b1 ->
+              aCOMPLETER ->
+              (let o = l b1 in
+               let o1 = a b1 in
+               (0 <= o /\ o < length o1) /\
+               (forall b_m2:int, b_c2:int -> char, b_r2:int, b_l2:int, b_a2:
+                 array char.
+                 length b_a2 = length o1 ->
+                 length b_a2 = length (a b1) /\
+                 b_l2 = l b1 /\ b_r2 = r b1 /\ b_c2 = c b1 /\ b_m2 = m b1 ->
+                 elts b_a2 = set (elts o1) o x /\ b_a2 = o1[o <- x] ->
+                 (forall b2:buffer, b_m3:int, b_c3:int -> char, b_r3:int,
+                   b_l3:int, b_a3:array char.
+                   b_a3 = b_a2 /\
+                   b_l3 = (b_l2 + 1) /\
+                   b_r3 = b_r2 /\ b_c3 = b_c2 /\ b_m3 = b_m2 ->
+                   ((0 <= b_l3 /\ b_l3 <= b_r3 /\ b_r3 <= length b_a3) &&
+                    b_m3 = (length b_a3 - (b_r3 - b_l3)) &&
+                    (forall i:int. 0 <= i /\ i < b_l3 -> (b_c3 @ i) = b_a3[i]) &&
+                    (forall i:int.
+                      b_l3 <= i /\ i < b_m3 ->
+                      (b_c3 @ i) = b_a3[(i + b_r3) - b_l3])) /\
+                   (b_m3 = m b2 /\
+                    b_c3 = c b2 /\ b_r3 = r b2 /\ b_l3 = l b2 /\ b_a3 = a b2 ->
+                    aCOMPLETER))))))
+      else let o = l b in
+           let o1 = a b in
+           (0 <= o /\ o < length o1) /\
+           (forall b_m1:int, b_c1:int -> char, b_r1:int, b_l1:int, b_a1:array
+             char.
+             length b_a1 = length o1 ->
+             length b_a1 = length (a b) /\
+             b_l1 = l b /\ b_r1 = r b /\ b_c1 = c b /\ b_m1 = m b ->
+             elts b_a1 = set (elts o1) o x /\ b_a1 = o1[o <- x] ->
+             (forall b1:buffer, b_m2:int, b_c2:int -> char, b_r2:int, b_l2:
+               int, b_a2:array char.
+               b_a2 = b_a1 /\
+               b_l2 = (b_l1 + 1) /\ b_r2 = b_r1 /\ b_c2 = b_c1 /\ b_m2 = b_m1 ->
+               ((0 <= b_l2 /\ b_l2 <= b_r2 /\ b_r2 <= length b_a2) &&
+                b_m2 = (length b_a2 - (b_r2 - b_l2)) &&
+                (forall i:int. 0 <= i /\ i < b_l2 -> (b_c2 @ i) = b_a2[i]) &&
+                (forall i:int.
+                  b_l2 <= i /\ i < b_m2 ->
+                  (b_c2 @ i) = b_a2[(i + b_r2) - b_l2])) /\
+               (b_m2 = m b1 /\
+                b_c2 = c b1 /\ b_r2 = r b1 /\ b_l2 = l b1 /\ b_a2 = a b1 ->
+                aCOMPLETER))))
+end
+
