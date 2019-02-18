@@ -11,14 +11,14 @@
 
 /* ---------------------------------------------------------------------------
   Complément sur ACSL :
-   
+
   En ACSL, les fonctions logiques et les prédicats peuvent être étiquetés par
   un ou plusieurs points de programme spécifiés entre accolades. Par exemple,
-  \valid{P}(p) indique que le pointeur p est valide au point de programme P, 
+  \valid{P}(p) indique que le pointeur p est valide au point de programme P,
   ce qui est exactement équivalent à \at(\valid(p), P).
-  
+
   Une étiquette omise est par défaut équivalente à Here. Ainsi \valid(p) est
-  équivalent à \valid{Here}(p), c'est-à-dire à \at(valid(p), Here). 
+  équivalent à \valid{Here}(p), c'est-à-dire à \at(valid(p), Here).
    ------------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------------
@@ -31,32 +31,32 @@
    ------------------------------------------------------------------------- */
 
 /*@ axiomatic Nb_occ {
-  @ 
+  @
   @   logic integer nb_occ{L}(int* a, integer start, integer stop, integer v)
   @     reads a[start..stop];
-  @   
+  @
   @   axiom no_elt{L}:
   @     \forall int* a, integer start, stop, v;
   @       stop < start ==> nb_occ{L}(a, start, stop, v) == 0;
-  @   
+  @
   @   axiom occurs{L}:
   @     \forall int* a, integer start, stop, v, idx;
   @       start <= idx <= stop && a[idx] == v ==>
   @       nb_occ{L}(a, start, stop, v) ==
   @         1 + nb_occ{L}(a, start, idx-1, v) + nb_occ{L}(a, idx+1, stop, v);
-  @     
+  @
   @   axiom not_occurs{L}:
   @     \forall int* a, integer start, stop, v, idx;
   @       start <= idx <= stop && a[idx] != v ==>
   @       nb_occ{L}(a, start, stop, v) ==
   @         nb_occ{L}(a, start, idx-1, v) + nb_occ{L}(a, idx+1, stop, v);
   @ }
-  @ 
+  @
   @*/
 
 /* ---------------------------------------------------------------------------
    Petit rappel de mathématiques élémentaires à toutes fins utiles :
-   
+
    Une permutation est une bijection d'un ensemble dans lui-même : l'ensemble
    résultant doit contenir les mêmes éléments que l'ensemble de départ (et en
    mêmes nombres), éventuellement dans un ordre différent.
@@ -73,7 +73,7 @@
    satisfassent leurs spécifications informelles.
    ------------------------------------------------------------------------- */
 
-/*@ // [is_sorted(a, start, stop)] est valide si et seulement si le tableau [a] 
+/*@ // [is_sorted(a, start, stop)] est valide si et seulement si le tableau [a]
   @ // est trié entre les indices [start] et [stop] (inclus).
   @ predicate is_sorted(int* a, integer start, integer stop) =
   @   \false; // remplacer \false par la définition du prédicat
@@ -84,10 +84,10 @@
   @ // même tableau au point de programme [L2].
   @ predicate is_permutation{L1,L2}(int* a, integer start, integer stop) =
   @   \false; // remplacer \false par la définition du prédicat
-  @ 
+  @
   @ // [exchange{L1,L2}(a, start, stop, i, j)] est valide si et seulement si
   @ // les éléments du tableau [a] aux cases d'indices [i] et [j] (variant
-  @ // entre [start] et [stop] inclus) ont été échangés entre les points de 
+  @ // entre [start] et [stop] inclus) ont été échangés entre les points de
   @ // programme [L1] et [L2].
   @ predicate exchange{L1,L2}
   @   (int *a, integer start, integer stop, integer i, integer j) =
@@ -103,7 +103,7 @@
 
    IL N'EST PAS DEMANDÉ DE LE PROUVER.
 
-   Question 3 : donner une spécification informelle (en français ou en anglais) 
+   Question 3 : donner une spécification informelle (en français ou en anglais)
    de ce lemme.
    ------------------------------------------------------------------------- */
 
@@ -135,7 +135,8 @@ void swap(int *a, int i, int j);
    terminaison et l'absence d'erreurs à l'exécution.
    ------------------------------------------------------------------------- */
 
-void sort(int* a, int len) {
+void sort(int* a, int len)
+{
   int i;
   for(i = 0; i < len; i++) {
     int low = i;
@@ -150,7 +151,12 @@ void sort(int* a, int len) {
    Ci-après, la définition de la fonction [swap].
    ------------------------------------------------------------------------- */
 
-void swap(int *a, int i, int j) {
+/*@ requires
+  @
+  @*/
+
+void swap(int *a, int i, int j)
+{
   int tmp = a[j];
   a[j] = a[i];
   a[i] = tmp;
